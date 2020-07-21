@@ -1,0 +1,25 @@
+/**
+ * File:    rule.cga
+ * Created: 15 Jul 2020 13:52:34 GMT
+ * Author:  Kevin Huberty
+ */
+
+version "2020.0"
+
+@StartRule
+Lot -->
+	extrude(-2) A
+	
+A -->
+	comp(f){top: Ground | side: Walls | all: Floor}
+	
+Ground -->
+	offset(-1) Mass
+	
+Mass -->
+	comp(f){inside: I
+		   | border: O}
+		   
+I -->
+	extrude(-10)
+	

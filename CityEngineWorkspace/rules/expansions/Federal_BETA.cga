@@ -1,0 +1,127 @@
+/**
+ * File:    Federal_BETA.cga
+ * Created: 14 Jul 2020 15:24:36 GMT
+ * Author:  Kevin Huberty
+ */
+
+version "2020.0"
+
+@Hidden
+attr massType = ""
+@Hidden
+attr floorIndex = 0
+@Hidden
+attr floorCount = 0
+@Hidden
+attr floorHeight = 0
+@Hidden
+attr tileWidth = 3.1
+@Hidden
+attr windowWidth = 1.4
+@Hidden
+attr doorWidth = 2.1
+
+
+const federalwindowAsset = "facades/federal/elem_window_frame.obj"
+const federalhalfwindowAsset = "facades/federal/elem_halfwindow_frame.obj"
+const italianatehalfarchAsset = "facades/palazzo/elem_facade_halfarch.obj"
+const italianatemodillionAsset = "facades/palazzo/elem_facade_modillion.obj"
+
+const wallInset = 0.4
+
+
+Facade(__massType, __floorIndex, __floorCount, __floorHeight,_tileWidth, _windowWidth, _doorWidth, _facadeFace) -->
+	alignScopeToAxes(y)
+	
+	set(massType, __massType)
+	set(floorIndex, __floorIndex)
+	set(floorCount, __floorCount)
+	set(floorHeight, __floorHeight)
+	set(tileWidth, _tileWidth)
+	set(windowWidth, _windowWidth)
+	set(doorWidth, _doorWidth)
+	
+	[case massType == "Foundation": 
+		FederalBasement
+	 case massType == "Ground":
+		FederalEntry
+	else:
+		FederalFloor]
+	
+FederalFloor -->
+	split(x){ 0.25 			: FederalWall 
+			| { ~tileWidth  : FederalWindowTile }* 
+			| 0.25 			: FederalWall }
+	
+	
+FederalBasement -->
+	split(y){~1: FoundationFloorFederal
+			|0.25: BasementLedge}
+			
+FoundationFloorFederal -->
+	comp(f){side: FoundationTiles}
+	
+FoundationTiles -->
+		split(x){ 0.25 			: FederalWall 
+			| { ~tileWidth  : FederalHalfWindowTile }* 
+			| 0.25 			: FederalWall }
+			
+FederalHalfWindowTile -->
+		split(x){ ~0.5 : FederalWall 
+			|  0.8 : split(y){ ~0.25: FederalWall | .5: HalfWindowAsset | 0.25: FederalWall }
+			| ~0.5 : FederalWall }
+			
+FederalEntry -->
+	split(x){ 0.25 			: FederalWall 
+			| ~tileWidth 	: FederalEntranceTile
+			| { ~tileWidth  : FederalWindowTile }* 
+			| 0.25 			: FederalWall }
+	
+FederalWindowTile -->
+	split(x){ ~0.5 : FederalWall 
+			|  0.8 : split(y){ ~0.25: FederalWall | 1.8: WindowAsset | ~0.25: FederalWall }
+			| ~0.5 : FederalWall }
+
+FederalEntranceTile -->
+	split(x){ .75: FederalWall
+			| ~1: FederalDoorTile
+			| .75: FederalWall}
+
+FederalDoorTile -->
+	split(y){~1          : Door 
+            | scope.sx/2 : Arcs 
+            | 0.5        : Arctop}
+            
+Arctop -->
+	FederalWall
+	s(0.25,'.5,0.15) center(x) i(italianatemodillionAsset) FederalWall
+	
+Arcs -->  
+	s('1,'1,wallInset) t(0,0,-wallInset)
+	FederalWall 
+	primitiveCube()
+	split(x){ ~1 : ArcAsset 
+			| ~1 : r(scopeCenter,0,0,-90) ArcAsset}
+ArcAsset --> i(italianatehalfarchAsset) FederalWall
+
+Door -->
+	t(0,0,-wallInset) FederalWall
+            
+            
+WindowAsset -->
+	s('1,'1,'0.2) t(0,0,-0.275)
+	t(0,0,0.165)
+	[ i(federalwindowAsset) FederalWall ]
+	
+HalfWindowAsset -->
+	s('1,'1,'0.2) t(0,0,-0.275)
+	t(0,0,0.165)
+	[ i(federalhalfwindowAsset) FederalWall ]
+	
+Glass -->
+	set(material.opacity,0.5 )
+	
+	
+BasementLedge -->
+	extrude(0.05)
+			    

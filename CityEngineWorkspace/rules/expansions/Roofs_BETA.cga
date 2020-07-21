@@ -1,0 +1,147 @@
+/**
+ * File:    Roofs_BETA.cga
+ * Created: 7 Jul 2020 19:05:50 GMT
+ * Author:  Kevin Huberty
+ */
+
+version "2020.0"
+
+@Order(1)
+    @Enum("Hip", "Gable", "Mansard", "Gambrel", "Flat")
+    attr RoofType = "Hip"
+@Order(2)
+	@Range(min=15, max=35, restricted=true)
+	@Angle
+	attr RoofAngle = 
+		case RoofType == "Gambrel":15 else:rand(20,30)
+@Order(3)
+	@Range(min=0, max=0.5, restricted=true) 
+	@Distance
+	attr Overhang = 0
+@Order(4)
+	@Enum(1,2,3,4,5,6)
+	attr MansardType = 1
+@Order(5)
+	@Hidden
+	@Distance
+	attr TileWidth=rand(3,3.5)
+
+
+getDormer(n) = 	"assets/roof/dormer"+ n +".obj"
+
+dormerAngle = 
+	case RoofAngle*3<65: 65 case RoofAngle*3>80: 80 else: RoofAngle*3
+
+dormerHeight(n)		=
+	case n == 1 : 1.65
+	case n == 2 : 2.2
+	case n == 3 : 1.2
+	case n == 4 : 1.3
+	case n == 5 : 1.6
+	else        : 1.5		
+
+
+
+
+RoofStart -->
+	offset(Overhang,inside)
+	RoofStyle
+	
+RoofStyle -->
+	case RoofType == "Hip": RoofHip
+	case RoofType == "Gable" : RoofGable
+	case RoofType == "Mansard" : RoofMansard
+	case RoofType == "Gambrel" : RoofGambrel
+	else : RoofFlat
+	
+RoofHip -->
+	roofHip(RoofAngle) Ridges
+	comp(f){top : Blank Geebles | side: NIL}
+RoofGable -->
+	roofGable(RoofAngle) Ridges
+	comp(f){top : Blank Geebles | side: NIL}
+RoofMansard -->
+	roofHip(dormerAngle)
+	split(y){3: comp(f){side: MansardSide | top: RoofHip | bottom: NIL}}
+RoofGambrel -->
+	roofGable(dormerAngle)
+	split(y){3: comp(f){side: MansardSide | top: RoofHip | bottom: NIL}}
+RoofFlat -->
+	Flatroof.
+	offset(-0.3, border)
+	extrude(rand(0.5,1))
+	comp(f){ bottom: NIL | all: Wall.}
+	
+	
+MansardSide -->
+	split(x, noAdjust){ ~scope.sx/ceil(scope.sx/TileWidth)*6 : DormerWindows }*
+DormerWindows -->
+	case geometry.angle(maxSlope) < 85: 
+			MansardGeo
+			alignScopeToAxes(y)	 
+			split(y){
+				'0.03: NIL 
+				| '0.9: split(x){(scope.sx/ceil(scope.sx/TileWidth)): 
+			split(x){
+				~1:NIL | '0.55: Dormer | ~1:NIL}}*
+				|'0.07: NIL}
+		else: MansardGeo		
+Dormer -->
+	case scope.sx < 1 || !geometry.isRectangular(10):
+		NIL
+	case scope.sz < 0.1:
+		s(dormerHeight(MansardType),0.9 * scope.sy,1.2) center(x) i(getDormer(MansardType))
+	else: 
+		s(dormerHeight(MansardType),0.9 * scope.sy,scope.sz+.2) center(x) i(getDormer(MansardType))
+
+
+
+Geebles -->
+	split(x){~rand(3,6)   	: NIL
+			|(rand(1,1.5))	: FanLight
+			|(rand(1,2))  	: NIL
+			|rand(0.4,0.6) 	: Chimney
+			|~rand(1,2) 	: NIL }*
+
+FanLight -->
+	split(y){'rand(1.5)		: NIL
+			|(rand(1,1.2)) 	: alignScopeToGeometry(yUp,any,world.lowest)
+	i("assets/roof/roofWindow.obj") FanLight.}
+	
+Chimney -->
+	case p(0.55) || !geometry.isRectangular(45): 
+		NIL
+	else:
+		set(trim.vertical,false)
+		alignScopeToAxes(y) 
+		primitiveCube() 
+		ChimneyMass
+		
+ChimneyMass -->
+	comp(f){side: ChimneyWall |top: alignScopeToGeometry(zUp,any,world.lowest) ChimneyCornice ChimneyAssets}
+	
+ChimneyCornice -->
+	s(scope.sx+0.2,scope.sy+0.2,0.25) center(xy)
+	primitiveCube()
+
+ChimneyAssets -->
+	t(0,0,0.25)
+	split(x){~0.60: alignScopeToGeometry(yUp,any,world.lowest) ChimneyAsset}*
+	
+ChimneyAsset -->
+	20%:
+		s('1,0.5,'1)
+		i("assets/roof/chimney1.obj")
+	13%:
+		s('1,0.75,'1)
+		i("assets/roof/chimney2.obj")
+	else:
+		NIL
+	
+Ridges -->
+	comp(e){ hip: Ridge | valley: Ridge | ridge: Ridge}
+Ridge -->
+	s('1,0.1,0.1) center(y)
+	primitiveCube()
+	
+	

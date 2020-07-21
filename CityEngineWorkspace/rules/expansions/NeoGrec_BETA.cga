@@ -1,0 +1,76 @@
+/**
+ * File:    NeoGrec_BETA.cga
+ * Created: 15 Jul 2020 12:47:10 GMT
+ * Author:  Kevin Huberty
+ */
+
+version "2020.0"
+
+@Hidden
+attr massType = ""
+@Hidden
+attr floorIndex = 0
+@Hidden
+attr floorCount = 0
+@Hidden
+attr floorHeight = 0
+@Hidden
+attr tileWidth = 3.1
+@Hidden
+attr windowWidth = 1.4
+@Hidden
+attr doorWidth = 2.1
+
+const neogreccolumn = "facades/neogrec/column.obj"
+const neogrecwindow1 = "facades/neogrec/window1.obj"
+const neogrecwindow2 = "facades/neogrec/window2.obj"
+const neogrecwindow3 = "facades/neogrec/window3.obj"
+const neogrecledge1 = "facades/neogrec/ledge1.obj"
+const neogrecledge2 = "facades/neogrec/ledge2.obj"
+const neogrecdoor = "facades/neogrec/door.obj"
+
+
+const wallColor = "#ffffff"
+
+
+
+
+Facade(__massType, __floorIndex, __floorCount, __floorHeight,_tileWidth, _windowWidth, _doorWidth) -->
+	alignScopeToAxes(y)
+	
+	set(massType, __massType)
+	set(floorIndex, __floorIndex)
+	set(floorCount, __floorCount)
+	set(floorHeight, __floorHeight)
+	set(tileWidth, _tileWidth)
+	set(windowWidth, _windowWidth)
+	set(doorWidth, _doorWidth)
+	
+	Floor(floorIndex)
+	 
+Floor(a) -->
+	case scope.sx < 3 : Column
+	else : 
+	split(x){ 0.75: Column 
+			| {~tileWidth: Window(a,split.index) 
+			  | 0.75: Column}* }
+	
+Window(a,door)-->
+				case a==0 && door%4==0: i(neogrecdoor)t(0,0,-0.16)
+				case a==0: i(neogrecwindow1)t(0,0,-0.14)
+			    case a==1: i(neogrecwindow2)t(0,0,-0.11) 
+			    case a>=2: i(neogrecwindow3)t(0,0,-0.14) 
+				else:NIL
+				
+Column-->set(trim.vertical, false)
+	i(neogreccolumn) t(0,0,-0.25) s('1,'1,0.4)
+		
+QuerBalken(a)--> 
+	s('1.5,'1,'1) 
+	center(x) 
+	split(x){~tileWidth: iQB(a)}* 
+				
+						
+iQB(a)--> 
+	case a==0:i(neogrecledge1)
+	else:i(neogrecledge2) 

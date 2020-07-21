@@ -1,0 +1,83 @@
+/**
+ * File:    Basic_BETA.cga
+ * Created: 1 Jul 2020 03:50:44 GMT
+ * Author:  Kevin Huberty
+ */
+
+version "2020.0"
+
+@Hidden
+attr massType = ""
+@Hidden
+attr floorIndex = 0
+@Hidden
+attr floorCount = 0
+@Hidden
+attr floorHeight = 0
+@Hidden
+attr tileWidth = 3.1
+@Hidden
+attr windowWidth = 1.4
+@Hidden
+attr doorWidth = 2.1
+
+const basicWindow = "facades/basic/window.obj"
+
+const wallColor = "#ffffff"
+
+
+
+
+Facade(__massType, __floorIndex, __floorCount, __floorHeight,_tileWidth, _windowWidth, _doorWidth) -->
+	alignScopeToAxes(y)
+	
+	set(massType, __massType)
+	set(floorIndex, __floorIndex)
+	set(floorCount, __floorCount)
+	set(floorHeight, __floorHeight)
+	set(tileWidth, _tileWidth)
+	set(windowWidth, _windowWidth)
+	set(doorWidth, _doorWidth)
+	
+	[case massType=="Ground": GroundFloor
+	 else: Floor]
+	 
+Floor -->
+	split(x){ 1 : Wall 
+			| { ~tileWidth : Tile }* 
+			| 1 : Wall }
+	
+GroundFloor -->
+	split(x){ 1 			: Wall 
+			| { ~tileWidth : Tile }* 
+			| ~tileWidth 	: EntranceTile 
+			| 1 			: Wall }
+		
+Tile -->
+	split(x){ ~1 : Wall 
+			|  2 : split(y){ ~1: Wall | 1.5: Window | ~1: Wall }
+			| ~1 : Wall }		 
+	
+EntranceTile -->
+	split(x){ ~1 : SolidWall 
+			| 2  : split(y){ 2.5: Door | ~2: SolidWall } 
+			| ~1 : SolidWall }
+	
+Window -->
+	s('1,'1,0.4)
+	t(0,0,-0.25)
+	i(basicWindow)  
+	
+Door -->
+	s('1,'1,0.1)
+	t(0,0,-0.5)
+	primitiveCube()	  
+
+Wall -->
+	color(wallColor)
+
+SolidWall -->
+	color(wallColor)
+	s('1,'1,0.4) 
+	t(0,0,-0.4) 
+	primitiveCube()	
