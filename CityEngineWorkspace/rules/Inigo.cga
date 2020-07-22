@@ -167,11 +167,8 @@ BuildingSplit(type) -->
 FloorShell -->
     set(_floorIndex, split.index)
     set(_floorCount, split.total)
-    comp(f) {bottom: NIL | top: NIL | front: ImportFacadeFront | all: ImportFacade}
+    comp(f) {bottom: NIL | top: NIL | all: ImportFacade}
 
-ImportFacadeFront -->
-	set(_facadeFace, "Front")
-	ImportFacade
 ImportFacade -->
     [case Style == "Italianate": Italianate.Facade(_massType, _floorIndex, _floorCount, _floorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
     [case Style == "Basic": Basic.Facade(_massType, _floorIndex, _floorCount, _floorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
