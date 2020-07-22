@@ -46,7 +46,8 @@ Facade(__massType, __floorIndex, __floorCount, __floorHeight,_tileWidth, _window
 	set(windowWidth, _windowWidth)
 	set(doorWidth, _doorWidth)
 	
-	Floor(floorIndex)
+	[case floorIndex==1 || massType == "Top": QFloor(floorIndex)
+	 else:	Floor(floorIndex)]
 	 
 Floor(a) -->
 	case scope.sx < 3 : Column
@@ -54,6 +55,10 @@ Floor(a) -->
 	split(x){ 0.75: Column 
 			| {~tileWidth: Window(a,split.index) 
 			  | 0.75: Column}* }
+
+QFloor(a) -->
+	split(y){~floorHeight: Floor(floorIndex)
+			|1: QLedge}
 	
 Window(a,door)-->
 				case a==0 && door%4==0: i(neogrecdoor)t(0,0,-0.16)
@@ -65,10 +70,13 @@ Window(a,door)-->
 Column-->set(trim.vertical, false)
 	i(neogreccolumn) t(0,0,-0.25) s('1,'1,0.4)
 		
-QuerBalken(a)--> 
+
+QLedge--> 
 	s('1.5,'1,'1) 
 	center(x) 
-	split(x){~tileWidth: iQB(a)}* 
+	[case massType == "Top": split(x){~tileWidth: iQB(1)}*
+	else: split(x){~tileWidth: iQB(0)}*]
+	
 				
 						
 iQB(a)--> 
