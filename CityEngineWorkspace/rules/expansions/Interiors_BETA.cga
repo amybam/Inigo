@@ -1,0 +1,27 @@
+/**
+ * File:    Interiors_BETA.cga
+ * Created: 27 Jul 2020 23:00:50 GMT
+ * Author:  Kevin Huberty
+ */
+
+version "2020.0"
+
+@Hidden
+attr type = ""
+
+Start(__type) -->
+
+    set(type, __type)
+
+    [case type=="Ceiling": Ceiling
+     case type=="Floor": Floor
+     else: NIL
+    ]
+
+Ceiling -->
+    offset(-.01, inside)
+	extrude(-.25)
+
+Floor -->  
+    offset(-.01, inside)
+	extrude(-0.15)
