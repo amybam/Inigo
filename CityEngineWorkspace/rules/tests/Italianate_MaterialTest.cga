@@ -20,6 +20,16 @@ attr tileWidth = 3.1
 attr windowWidth = 1.4
 @Hidden
 attr doorWidth = 2.1
+@Hidden
+attr foundationHeight = 0
+@Hidden
+attr groundfloorHeight = 3
+@Hidden
+attr floorHeight = 2.8
+@Hidden
+attr topfloorHeight = 2.8
+@Hidden
+attr type= ""
 
 
 attr AddBalcony = false
@@ -46,6 +56,7 @@ BuildingSplit(__type, __foundationHeight, __groundfloorHeight, __floorHeight, __
 	set(tileWidth, __tileWidth)
 	set(windowWidth, __windowWidth)
 	set(doorWidth, __doorWidth)
+	set(type, __type)
 	
 	
 	split(y){foundationHeight    : 

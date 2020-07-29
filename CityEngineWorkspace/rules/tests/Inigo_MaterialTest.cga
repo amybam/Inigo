@@ -126,10 +126,10 @@ BuildingSplitFloors -->
 # Floor Creation
 # ----------------------------------------
 
-BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) -->
+BuildingSplit(type) -->
     alignScopeToAxes(y)
 
-    [case Style == "Italianate": Italianate.Facade(type) else:NIL]
+    [case Style == "Italianate": Italianate.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
 
 RoofBeforeSplit -->
 	[case ShowRoof: Roof.RoofStart
