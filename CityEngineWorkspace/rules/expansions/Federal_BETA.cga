@@ -94,7 +94,7 @@ FederalDoorTile -->
             
 Arctop -->
 	FederalWall
-	s(0.25,'.5,0.15) center(x) i(italianatemodillionAsset) FederalWall
+	s(0.25,'.5,0.15) center(x) i(italianatemodillionAsset) FederalDoor
 	
 Arcs -->  
 	s('1,'1,wallInset) t(0,0,-wallInset)
@@ -102,21 +102,24 @@ Arcs -->
 	primitiveCube()
 	split(x){ ~1 : ArcAsset 
 			| ~1 : r(scopeCenter,0,0,-90) ArcAsset}
-ArcAsset --> i(italianatehalfarchAsset) FederalWall
+ArcAsset --> [i(italianatehalfarchAsset) FederalDoor]
+
+FederalWall -->
+	extrude(-0.1)
 
 Door -->
-	t(0,0,-wallInset) FederalWall
+	t(0,0,-wallInset) FederalDoor
             
             
 WindowAsset -->
 	s('1,'1,'0.2) t(0,0,-0.275)
 	t(0,0,0.165)
-	[ i(federalwindowAsset) FederalWall ]
+	[ i(federalwindowAsset) FederalWindow]
 	
 HalfWindowAsset -->
 	s('1,'1,'0.2) t(0,0,-0.275)
 	t(0,0,0.165)
-	[ i(federalhalfwindowAsset) FederalWall ]
+	[ i(federalhalfwindowAsset) FederalWindow ]
 	
 Glass -->
 	set(material.opacity,0.5 )
