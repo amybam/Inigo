@@ -1,6 +1,7 @@
 /**
  * File:    Inigo.cga
  * Created: 10:41 AM 6/29/2020
+ * Updated: 10:06 PM 7/28/2020
  * Author:  Kevin Huberty
  */
 
@@ -34,23 +35,19 @@
     @Order(2)
         @Distance
         @Range(min=0, max=3, restricted=false)
-        #@Handle(shape=Foundation, type=linear, reference=origin, align=right, skin=sphere, slip=inside, occlusion=false, axis=y)
         attr foundationHeight = 0
     @Order(3)
         @Distance
         @Range(min=3, max=7, restricted=false)
-        #@Handle(shape=GroundFloor, type=linear, reference=origin, align=right, skin=sphere, slip=inside, occlusion=false, axis=y)
-        attr groundfloorHeight = 5.5
+        attr groundfloorHeight = 3
     @Order(4)
         @Distance
         @Range(min=3, max=7, restricted=false)
-        #@Handle(shape=Floor, type=linear, reference=origin, align=right, skin=sphere, slip=inside, occlusion=false, axis=y-)
-        attr floorHeight =	3.5
+        attr floorHeight =	2.8
     @Order(5)
         @Distance
         @Range(min=3, max=7, restricted=false)
-        #@Handle(shape=TopFloor, type=linear, reference=origin, align=right, skin=sphere, slip=inside, occlusion=false, axis=y-)
-        attr topfloorHeight = 3
+        attr topfloorHeight = 2.8
 
 @Group("Bays")
     @Order(1)
@@ -92,8 +89,10 @@ import NeoGrec : "rules/expansions/NeoGrec_BETA.cga"
 #import ArtDeco : "rules/expansions/ArtDeco_BETA.cga"
 import Basic : "rules/expansions/Basic_BETA.cga"
 
-import Roof: "rules/expansions/Roofs_BETA.cga"
+# --Features-------------------------------
 
+import Roof: "rules/expansions/Roofs_BETA.cga"
+#import Interiors: "rules/expansions/Interiors_BETA.cga"
 
 # ----------------------------------------
 # Start Rule
@@ -112,7 +111,7 @@ Determiner -->
 Mass -->
     alignScopeToAxes(y)
 	cleanupGeometry(edges, 0.5)
-    comp(f) {top:RoofBeforeSplit}
+    comp(f) {top:Roofs}
 
     [case ShowFacade: BuildingSplitFacadeShell else: NIL]
     [case ShowFloors: BuildingSplitFloors else: NIL]
@@ -131,64 +130,22 @@ BuildingSplitFloors -->
     BuildingSplit("Floors")
 
 # ----------------------------------------
-# Floor Creation
+# Expansions
 # ----------------------------------------
 
-
-BuildingSplit(type) -->
+FacadeStyles(type) -->
     alignScopeToAxes(y)
 
-    split(y){foundationHeight    : 
-    			#Foundation
-                set(_massType, "Foundation")
-                set(_floorHeight, foundationHeight)
-                [case type == "Shell": FloorShell else: FloorMass]
-                NIL
-            |groundfloorHeight   : 
-            	#GroundFloor
-                set(_massType, "Ground")
-                set(_floorHeight, groundfloorHeight)
-                [case type == "Shell": FloorShell else: FloorMass]
-                NIL
-            |{~floorHeight       : 
-            	#Floor
-                set(_massType, "Middle")
-                set(_floorHeight, floorHeight)
-                [case type == "Shell": FloorShell else: FloorMass]
-                NIL}*
-            |topfloorHeight      : 
-            	#TopFloor
-                set(_massType, "Top")
-                set(_floorHeight, topfloorHeight)
-                [case type == "Shell": FloorShell else: FloorMass]
-                NIL
-            |1                 : TopLedge}
+    [case Style == "Italianate": Italianate.SplitHandling(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
+    [case Style == "Basic": Basic.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
+    [case Style == "Federal": Federal.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
+	[case Style == "Neo-Grec": NeoGrec.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
 
-FloorShell -->
-    set(_floorIndex, split.index)
-    set(_floorCount, split.total)
-    comp(f) {bottom: color("#300000") | top: NIL | all: ImportFacade}
-
-ImportFacade -->
-    [case Style == "Italianate": Italianate.Facade(_massType, _floorIndex, _floorCount, _floorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
-    [case Style == "Basic": Basic.Facade(_massType, _floorIndex, _floorCount, _floorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
-    [case Style == "Federal": Federal.Facade(_massType, _floorIndex, _floorCount, _floorHeight, tileWidth, windowWidth, doorWidth, _facadeFace) else:NIL]
-	[case Style == "Neo-Grec": NeoGrec.Facade(_massType, _floorIndex, _floorCount, _floorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
-RoofBeforeSplit -->
+Roofs -->
 	[case ShowRoof: Roof.RoofStart
 	 else: NIL]
 	
 
-FloorMass -->
-    set(_floorIndex, split.index)
-    set(_floorCount, split.total)
-    comp(f) {top: Ceiling | bottom: Base | all: NIL}
-    
-Base -->
-	offset(-.01, inside)
-	extrude(-0.15)
-
-Ceiling -->
-	offset(-.01, inside)
-	extrude(-.25)
+Interiors(type) -->
+    Interiors.Start(type)
 
