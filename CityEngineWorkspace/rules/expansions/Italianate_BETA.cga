@@ -6,23 +6,47 @@
 
 version "2020.0"
 
+# ----------------------------------------
+# Attributes
+# ----------------------------------------
+
+# --Local---------------------------------
+
+attr AddBalcony = false
+
 @Hidden
-attr massType = ""
+attr type= ""
 @Hidden
 attr floorIndex = 0
 @Hidden
 attr floorCount = 0
 @Hidden
-attr floorHeight = 0
+attr eachHeight = 0
+
+# --Inherited------------------------------
+
 @Hidden
 attr tileWidth = 3.1
 @Hidden
 attr windowWidth = 1.4
 @Hidden
 attr doorWidth = 2.1
+@Hidden
+attr foundationHeight = 0
+@Hidden
+attr groundfloorHeight = 3
+@Hidden
+attr floorHeight = 2.8
+@Hidden
+attr topfloorHeight = 2.8
 
+# ----------------------------------------
+# Constants & Imports
+# ----------------------------------------
 
-attr AddBalcony = false
+import Main: "rules/Inigo.cga"
+
+# --Assets--------------------------------
 
 const italianatewindowAsset = "facades/palazzo/elem_window_frame.obj"
 const italianateroundwindowtopAsset = "facades/palazzo/elem_window_roundtop.obj"
@@ -31,24 +55,80 @@ const italianatehalfarchAsset = "facades/palazzo/elem_facade_halfarch.obj"
 const italianateledgeAsset = "facades/palazzo/elem_facade_ledge.obj"
 const italianatemodillionAsset = "facades/palazzo/elem_facade_modillion.obj"
 
+# --Constants-----------------------------
 
 const wallInset = 0.4
-
 const wallColor = "#ffffff"
 
 
-Facade(__massType, __floorIndex, __floorCount, __floorHeight,_tileWidth, _windowWidth, _doorWidth) -->
+# ----------------------------------------
+# Geometry Handling
+# ----------------------------------------
+
+SplitHandling(__type, __foundationHeight, __groundfloorHeight, __floorHeight, __topfloorHeight, __tileWidth, __windowWidth, __doorWidth) -->
 	alignScopeToAxes(y)
 	
-	set(massType, __massType)
-	set(floorIndex, __floorIndex)
-	set(floorCount, __floorCount)
+	# --Set Local Variables---------------
+	set(type, __type)
+
+	set(foundationHeight, __foundationHeight)
+	set(groundfloorHeight, __groundfloorHeight)
 	set(floorHeight, __floorHeight)
-	set(tileWidth, _tileWidth)
-	set(windowWidth, _windowWidth)
-	set(doorWidth, _doorWidth)
+	set(topfloorHeight, __topfloorHeight)
 	
+	set(tileWidth, __tileWidth)
+	set(windowWidth, __windowWidth)
+	set(doorWidth, __doorWidth)
 	
+	split(y){foundationHeight    : 
+                set(massType, "Foundation")
+                set(eachHeight, __foundationHeight)
+                [case type == "Shell": Facade else: FloorMass]
+                NIL
+            |groundfloorHeight   : 
+                set(massType, "Ground")
+                set(eachHeight, groundfloorHeight)
+                [case type == "Shell": Facade else: FloorMass]
+                NIL
+            |{~floorHeight       : 
+                set(massType, "Middle")
+                set(eachHeight, floorHeight)
+                [case type == "Shell": Facade else: FloorMass]
+                NIL}*
+            |topfloorHeight      : 
+                set(massType, "Top")
+                set(eachHeight, topfloorHeight)
+                [case type == "Shell": Facade else: FloorMass]
+                NIL
+            |1  : TopLedge}
+
+Facade -->
+    set(floorIndex, split.index)
+    set(floorCount, split.total)
+    comp(f) {bottom: NIL | top: NIL | all: FacadeHandling}
+
+FloorMass -->
+    set(floorIndex, split.index)
+    set(floorCount, split.total)
+
+	comp(f) {top: Main.Interiors("Ceiling") | bottom: Main.Interiors("Floor") | all: NIL}
+
+Base -->
+	offset(-.01, inside)
+	extrude(-0.15)
+
+Ceiling -->
+	offset(-.01, inside)
+	extrude(-.25)
+
+
+# ----------------------------------------
+# Style
+# ----------------------------------------
+
+FacadeHandling -->
+	alignScopeToAxes(y)
+
 	[case floorIndex == 0: 
 		SubFloorItalianate(floorIndex)
 	case floorIndex == 2:
@@ -94,10 +174,10 @@ WindowLedgeItalianate -->
 	s('1.5, 0.2, 0.1) t(0,-0.2,0) center(x) primitiveCube() WallPallazo(0)
 	
 WindowItalianate -->
-	s('1,'1,0.2) t(0,0,-0.3)
+	s('1,'1,0.2) t(0,0,-0.2)
 	t(0,0,0.165)
 	[ i(italianatewindowAsset) WallPallazo(0) ]
-	
+	Glass
 
 DoorTileItalianate -->
 	split(y){~1          : Door 
@@ -108,7 +188,6 @@ Arctop -->
 	WallPallazo(1)
 	s(0.5,'1,0.3) center(x) i(italianatemodillionAsset) WallPallazo(1)
 
-# 
 Arcs -->  
 	s('1,'1,wallInset) t(0,0,-wallInset)
 	Doortop 
@@ -124,7 +203,6 @@ ArcAsset --> i(italianatehalfarchAsset) WallPallazo(1)
 Door -->
 	t(0,0,-wallInset) WallPallazo(0)
 	
-
 TopLedge --> WallStripe 
 
 BottomLedgeItalianate(floorIndex) -->
