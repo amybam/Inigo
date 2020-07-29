@@ -118,16 +118,16 @@ Mass -->
 
 Lot -->
     extrude(world.up, overallHeight)
-    comp(f) {top:RoofBeforeSplit}
+    comp(f) {top:Roofs}
 
     [case ShowFacade: BuildingSplitFacadeShell else: NIL]
     [case ShowFloors: BuildingSplitFloors else: NIL]
 
 BuildingSplitFacadeShell -->
-    comp(f) {bottom:NIL | all = BuildingSplit("Shell")}
+    comp(f) {bottom:NIL | all = FacadeStyles("Shell")}
 
 BuildingSplitFloors -->
-    BuildingSplit("Floors")
+    FacadeStyles("Floors")
 
 # ----------------------------------------
 # Expansions
@@ -144,8 +144,4 @@ FacadeStyles(type) -->
 Roofs -->
 	[case ShowRoof: Roof.RoofStart
 	 else: NIL]
-	
-
-Interiors(type) -->
-    Interiors.Start(type)
 

@@ -22,6 +22,8 @@ attr floorIndex = 0
 attr floorCount = 0
 @Hidden
 attr eachHeight = 0
+@Hidden
+attr floorType = ""
 
 # --Inherited------------------------------
 
@@ -44,7 +46,7 @@ attr topfloorHeight = 2.8
 # Constants & Imports
 # ----------------------------------------
 
-import Main: "rules/Inigo.cga"
+import Interiors: "rules/expansions/Interiors_BETA.cga"
 
 # --Assets--------------------------------
 
@@ -80,23 +82,24 @@ SplitHandling(__type, __foundationHeight, __groundfloorHeight, __floorHeight, __
 	set(windowWidth, __windowWidth)
 	set(doorWidth, __doorWidth)
 	
+	
 	split(y){foundationHeight    : 
-                set(massType, "Foundation")
+                set(floorType, "Foundation")
                 set(eachHeight, __foundationHeight)
                 [case type == "Shell": Facade else: FloorMass]
                 NIL
             |groundfloorHeight   : 
-                set(massType, "Ground")
+                set(floorType, "Ground")
                 set(eachHeight, groundfloorHeight)
                 [case type == "Shell": Facade else: FloorMass]
                 NIL
             |{~floorHeight       : 
-                set(massType, "Middle")
+                set(floorType, "Middle")
                 set(eachHeight, floorHeight)
                 [case type == "Shell": Facade else: FloorMass]
                 NIL}*
             |topfloorHeight      : 
-                set(massType, "Top")
+                set(floorType, "Top")
                 set(eachHeight, topfloorHeight)
                 [case type == "Shell": Facade else: FloorMass]
                 NIL
@@ -111,16 +114,7 @@ FloorMass -->
     set(floorIndex, split.index)
     set(floorCount, split.total)
 
-	comp(f) {top: Main.Interiors("Ceiling") | bottom: Main.Interiors("Floor") | all: NIL}
-
-Base -->
-	offset(-.01, inside)
-	extrude(-0.15)
-
-Ceiling -->
-	offset(-.01, inside)
-	extrude(-.25)
-
+	comp(f) {top: Interiors.Start("Ceiling") | bottom: Interiors.Start("Floor") | all: NIL}
 
 # ----------------------------------------
 # Style
