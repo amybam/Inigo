@@ -1,2 +1,5 @@
-# Inigo
-A CityEngine RPK built for use both natively in CityEngine and UnrealEngine using ESRI's Vitruvio Plugin. Part of Virtual Places VR Research Project at Cornell University for Henry Richardson.
+# ![](docs/img/house.png) Inigo - CityEngine Rule Package for Vitruvio
+
+*Binaries are available at https://github.com/amybam/Inigo*
+
+Inigo is a rule package for [Vitruvio]
