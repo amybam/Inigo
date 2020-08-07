@@ -12,7 +12,7 @@ Inigo is well suited for creating detailed city environments for contextual deve
 Inigo Documentation:
 * [Quick Start](docs/usage.md)
 * [Expansion Documentation](docs/docs.md)
-* [Examples](https://esri.github.io/palladio/#examples)
+* [Examples](docs/examples.md)
 * [ChangeLog](docs/changelog.md)
 
 External documentation:

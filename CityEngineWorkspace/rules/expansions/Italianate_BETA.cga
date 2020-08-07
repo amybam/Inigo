@@ -57,6 +57,13 @@ const italianatehalfarchAsset = "facades/palazzo/elem_facade_halfarch.obj"
 const italianateledgeAsset = "facades/palazzo/elem_facade_ledge.obj"
 const italianatemodillionAsset = "facades/palazzo/elem_facade_modillion.obj"
 
+# --Textures-----------------------------
+
+const wall_tex = "assets/textures/italianate/brickwall.jpg"
+const wall2_tex = "assets/textures/italianate/brickwall_bright.jpg"
+const dirt_tex = "assets/textures/italianate/dirtmap.15.tif"
+randomWindowTex = fileRandom("*assets/textures/italianate/window.*.jpg")
+
 # --Constants-----------------------------
 
 const wallInset = 0.4
@@ -82,10 +89,17 @@ SplitHandling(__type, __foundationHeight, __groundfloorHeight, __floorHeight, __
 	set(windowWidth, __windowWidth)
 	set(doorWidth, __doorWidth)
 	
+	comp(f) {side: FrontfacadeTex}
 	
+FrontfacadeTex -->
+	setupProjection(0, scope.xy, 2.25, 1.5, 1) 	
+	setupProjection(2, scope.xy, '1, '1) 	
+	FacadeSplit
+	
+FacadeSplit -->
 	split(y){foundationHeight    : 
                 set(floorType, "Foundation")
-                set(eachHeight, __foundationHeight)
+                set(eachHeight, foundationHeight)
                 [case type == "Shell": Facade else: FloorMass]
                 NIL
             |groundfloorHeight   : 
@@ -127,7 +141,7 @@ FacadeHandling -->
 		SubFloorItalianate(floorIndex)
 	case floorIndex == 2:
 		split(y){~1	: SubFloorItalianate(floorIndex) [case AddBalcony: BalconyItalianate else: NIL]
-				|0.5: TopLedgePalazzo}
+				|0.5: TopLedgeItalianate}
 	else:
 		split(y){1 : BottomLedgeItalianate(floorIndex) | ~1 : SubFloorItalianate(floorIndex) | 0.5 : TopLedgeItalianate}]
 	
@@ -155,22 +169,22 @@ WindowOrnamentTriangle -->
 	s('1.7, 1.2, 0.3) center(x) i(italianatetrianglewindowtopAsset) WallItalianate(0)
 
 WindowOrnamentRound -->
-	s('1.7, 1.2, 0.4) center(x) i(italianateroundwindowtopAsset) WallPallazo(0)
+	s('1.7, 1.2, 0.4) center(x) i(italianateroundwindowtopAsset) WallItalianate(0)
 	split(x){~1            : WindowModillion 
             | windowWidth : NIL 
             | ~1           : WindowModillion}
 
 	
 WindowModillion -->
-	s(0.2,'1.3,'0.6) t(0,'-1,0) center(x) i(italianatemodillionAsset) WallPallazo(0)
+	s(0.2,'1.3,'0.6) t(0,'-1,0) center(x) i(italianatemodillionAsset) WallItalianate(0)
 
 WindowLedgeItalianate -->
-	s('1.5, 0.2, 0.1) t(0,-0.2,0) center(x) primitiveCube() WallPallazo(0)
+	s('1.5, 0.2, 0.1) t(0,-0.2,0) center(x) primitiveCube() WallItalianate(0)
 	
 WindowItalianate -->
 	s('1,'1,0.2) t(0,0,-0.2)
 	t(0,0,0.165)
-	[ i(italianatewindowAsset) WallPallazo(0) ]
+	[ i(italianatewindowAsset) WallItalianate(0) ]
 	Glass
 
 DoorTileItalianate -->
@@ -179,8 +193,8 @@ DoorTileItalianate -->
             | 0.5        : Arctop}
 
 Arctop -->
-	WallPallazo(1)
-	s(0.5,'1,0.3) center(x) i(italianatemodillionAsset) WallPallazo(1)
+	WallItalianate(1)
+	s(0.5,'1,0.3) center(x) i(italianatemodillionAsset) WallItalianate(1)
 
 Arcs -->  
 	s('1,'1,wallInset) t(0,0,-wallInset)
@@ -190,29 +204,32 @@ Arcs -->
 			| ~1 : r(scopeCenter,0,0,-90) ArcAsset}
 
 Doortop -->
-	WallPallazo(0)
+	WallItalianate(0)
 
-ArcAsset --> i(italianatehalfarchAsset) WallPallazo(1)
+ArcAsset --> i(italianatehalfarchAsset) WallItalianate(1)
 
 Door -->
-	t(0,0,-wallInset) WallPallazo(0)
+	t(0,0,-wallInset) WallItalianate(0)
 	
 TopLedge --> WallStripe 
 
 BottomLedgeItalianate(floorIndex) -->
 
-	case floorIndex == 1 : split(y){~1 : WallPallazo(0) 
+	case floorIndex == 1 : split(y){~1 : WallItalianate(0) 
                                    |~1 : s('1,'1,0.2) LedgeAsset}
 	case floorIndex == 999 : split(y){~1 : WallStripe 
                                      | ~1 : s('1,'1,0.2) LedgeAsset}
 	else : WallStripe
 
-WallStripe --> 
-    split(x){ 0.5 : WallPallazo(1) 
-            | ~1  : WallPallazo(2) 
-            | 0.5 : WallPallazo(1) } 
+TopLedgeItalianate -->
+	WallItalianate(0)
 
-LedgeAsset --> i(italianateledgeAsset) WallPallazo(0)
+WallStripe --> 
+    split(x){ 0.5 : WallItalianate(1) 
+            | ~1  : WallItalianate(2) 
+            | 0.5 : WallItalianate(1) } 
+
+LedgeAsset --> i(italianateledgeAsset)WallItalianate(0)
 
 BalconyItalianate --> 
 	s('1,2,1) t(0,-0.3,0) primitiveCube() 
@@ -221,7 +238,7 @@ BalconyItalianate -->
 			|1   : RailingBox }
 
 BalconyBeams -->			
-	split(x){ ~0.4 : s(0.2,'1,'0.9) center(x)  WallPallazo(0) }*
+	split(x){ ~0.4 : s(0.2,'1,'0.9) center(x)  WallItalianate(0) }*
 
 RailingBox -->
 	comp(f){front : Rail 
@@ -229,25 +246,43 @@ RailingBox -->
            | right : Rail}
 
 Rail --> 
-	 s('1.1,'1,0.1) t(0,0,-0.1) center(x) primitiveCube() WallPallazo(0)
+	 s('1.1,'1,0.1) t(0,0,-0.1) center(x) primitiveCube() WallItalianate(0)
 
-BalconyFloor --> WallPallazo(0)
+BalconyFloor --> WallItalianate(0)
 
 getWalltypeItalianate(floorIndex) = 
 	case floorIndex == 0 : 1
 	case floorIndex == 1 : 1
 	else : 2
 
-WallPallazo(walltype) -->
+WallItalianate(walltype) -->
 	case walltype == 1 :
 		color(wallColor)
+		texture(wall_tex)  
+		set(material.dirtmap, dirt_tex)
+		projectUV(0) projectUV(2)	
 	case walltype == 2 :
 		color(wallColor)
+		texture(wall2_tex)  
+		set(material.dirtmap, dirt_tex)
+		projectUV(0) projectUV(2)
 	else :
 		color(wallColor)
+		set(material.dirtmap, dirt_tex)
+		projectUV(2)
 
 SolidWallItalianate -->
 		s('1,'1,wallInset) t(0,0,-wallInset)
 		primitiveCube()
-		WallPallazo(1)	    
+		WallItalianate(1)
+		
+Glass -->
+	setupProjection(0,scope.xy, '1, '1)
+	projectUV(0)
+	texture(randomWindowTex)
+	set(material.specular.r, 1) 
+	set(material.specular.g, 1)   
+    set(material.specular.b, 1)
+	
+	set(material.shininess, 4)
 			    

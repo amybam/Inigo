@@ -40,6 +40,24 @@ dormerHeight(n)		=
 	case n == 5 : 1.6
 	else        : 1.5		
 
+# ----------------------------------------
+# Texturing
+# ----------------------------------------
+
+const randomFlatTex = fileRandom("*assets/textures/roof/flat/flatroof.*.png")
+const RoofTex = "assets/textures/roof/slate.png"
+MansardTex(n) = "assets/textures/roof/comble_tex_"+ n +".png"
+MansardBaseTex(n) = "assets/textures/roof/comble_base_"+ n +".png"
+textureWidth 		= scope.sx/ceil(scope.sx/TileWidth)*6
+const colorTone 	=
+	10% : "#EEEEEE"
+	10% : "#DEEBFF" 	
+	10% : "#D6FFEB" 	
+	10% : "#FFF4DB" 	
+	10% : "#F9CDC7" 	
+	else: "#FFFFFF"
+
+
 
 
 
@@ -67,12 +85,24 @@ RoofGambrel -->
 	roofGable(dormerAngle)
 	split(y){3: comp(f){side: MansardSide | top: RoofHip | bottom: NIL}}
 RoofFlat -->
-	Flatroof.
+	FlatFloor
 	offset(-0.3, border)
 	extrude(rand(0.5,1))
-	comp(f){ bottom: NIL | all: Wall.}
+	comp(f){ bottom: NIL | all: Railing}
 	
 	
+
+FlatFloor -->
+	texture(randomFlatTex)
+	setupProjection(0,scope.xy, ~16, ~16) projectUV(0)
+	Flatroof.
+Railing -->
+	texture(randomFlatTex)
+	setupProjection(0,scope.xy,textureWidth,-60) projectUV(0)
+	Wall.
+
+
+
 MansardSide -->
 	split(x, noAdjust){ ~scope.sx/ceil(scope.sx/TileWidth)*6 : DormerWindows }*
 DormerWindows -->
@@ -93,8 +123,13 @@ Dormer -->
 		s(dormerHeight(MansardType),0.9 * scope.sy,1.2) center(x) i(getDormer(MansardType))
 	else: 
 		s(dormerHeight(MansardType),0.9 * scope.sy,scope.sz+.2) center(x) i(getDormer(MansardType))
+MansardGeo -->
+	texture(MansardBaseTex(MansardType)) color(colorTone)
+	setupProjection(0,scope.xy,16,scope.sy*2) projectUV(0)
 
-
+Blank -->
+	texture(RoofTex) color(colorTone)
+	setupProjection(0,scope.xy,16,scope.sy*2) projectUV(0)
 
 Geebles -->
 	split(x){~rand(3,6)   	: NIL
