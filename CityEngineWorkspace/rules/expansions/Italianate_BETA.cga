@@ -89,11 +89,12 @@ SplitHandling(__type, __foundationHeight, __groundfloorHeight, __floorHeight, __
 	set(windowWidth, __windowWidth)
 	set(doorWidth, __doorWidth)
 	
-	comp(f) {side: FrontfacadeTex}
+	[case type == "Floors": FacadeSplit else: comp(f) {side: FrontfacadeTex}]
+	
 	
 FrontfacadeTex -->
-	setupProjection(0, scope.xy, 2.25, 1.5, 1) 	
-	setupProjection(2, scope.xy, '1, '1) 	
+	#setupProjection(0, scope.xy, 2.25, 1.5, 1) 	
+	#setupProjection(2, scope.xy, '1, '1) 	
 	FacadeSplit
 	
 FacadeSplit -->
@@ -255,21 +256,21 @@ getWalltypeItalianate(floorIndex) =
 	case floorIndex == 1 : 1
 	else : 2
 
-WallItalianate(walltype) -->
-	case walltype == 1 :
-		color(wallColor)
-		texture(wall_tex)  
-		set(material.dirtmap, dirt_tex)
-		projectUV(0) projectUV(2)	
-	case walltype == 2 :
-		color(wallColor)
-		texture(wall2_tex)  
-		set(material.dirtmap, dirt_tex)
-		projectUV(0) projectUV(2)
-	else :
-		color(wallColor)
-		set(material.dirtmap, dirt_tex)
-		projectUV(2)
+#WallItalianate(walltype) -->
+	#case walltype == 1 :
+		#color(wallColor)
+		#texture(wall_tex)  
+		#set(material.dirtmap, dirt_tex)
+		#projectUV(0) projectUV(2)	
+	#case walltype == 2 :
+		#color(wallColor)
+		#texture(wall2_tex)  
+		#set(material.dirtmap, dirt_tex)
+		#projectUV(0) projectUV(2)
+	#else :
+		#color(wallColor)
+		#set(material.dirtmap, dirt_tex)
+		#projectUV(2)
 
 SolidWallItalianate -->
 		s('1,'1,wallInset) t(0,0,-wallInset)

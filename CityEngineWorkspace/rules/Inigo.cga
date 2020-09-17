@@ -17,7 +17,7 @@
         @Description("Determines setup for initial geometry creation")
         attr RuleType = "Lot"
     @Order(2)
-        @Enum( "Italianate", "Federal", "Second Empire", "Neo-Grec", "Gothic", "Beaux Arts", "Romanesque", "Art Deco", "Basic")
+        @Enum( "Italianate", "Federal", "Second Empire (incomplete)", "Neo-Grec", "Gothic (incomplete)", "Beaux Arts (incomplete", "Romanesque (incomplete)", "Art Deco (incomplete)", "Basic")
         attr Style = "Italianate"
     @Order(3)
         attr ShowFacade = true
@@ -137,9 +137,9 @@ FacadeStyles(type) -->
     alignScopeToAxes(y)
 
     [case Style == "Italianate": Italianate.SplitHandling(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
-    [case Style == "Basic": Basic.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
-    [case Style == "Federal": Federal.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
-	[case Style == "Neo-Grec": NeoGrec.BuildingSplit(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
+    [case Style == "Basic": Basic.SplitHandling(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
+    [case Style == "Federal": Federal.SplitHandling(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
+	[case Style == "Neo-Grec": NeoGrec.SplitHandling(type, foundationHeight, groundfloorHeight, floorHeight, topfloorHeight, tileWidth, windowWidth, doorWidth) else:NIL]
 
 Roofs -->
 	[case ShowRoof: Roof.RoofStart
